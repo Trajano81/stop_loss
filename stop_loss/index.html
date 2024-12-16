@@ -78,9 +78,9 @@
             const integralWithStirling = integrate(gammaDensity, lowerLimit, upperLimit, stepSize, alpha, lambda);
 
             document.getElementById('integralResult').innerText = `
-                Integral Result: ${integral.toPrecision(6)} \n
-                Gamma (Stirling): ${stirlingGamma.toPrecision(6)} \n
-                Integral using Stirling: ${integralWithStirling.toPrecision(6)}
+                Integral Result: ${integral} \n
+                Gamma (Stirling): ${stirlingGamma} \n
+                Integral using Stirling: ${integralWithStirling}
             `;
         }
     </script>
