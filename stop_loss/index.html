@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamma Distribution Integral with Comparison</title>
+    <title>Gamma Distribution Integral</title>
 </head>
 <body>
 
@@ -25,22 +25,13 @@
 
     <!-- Button to calculate the integral -->
     <button onclick="calculateIntegral()">Calculate Integral</button><br><br>
-    <p id="exactResult">Integral Result (Exact Factorial): </p>
-    <p id="stirlingResult">Integral Result (Stirling Approximation): </p>
+    <p id="integralResult">Integral Result: </p>
 
     <script>
-        // Gamma density function using exact factorial
-        function gammaDensityExact(x, alpha, lambda) {
+        // Gamma density function
+        function gammaDensity(x, alpha, lambda) {
             if (x < 0) return 0; // Gamma density is zero for x < 0
-            const gamma = factorial(alpha - 1);
-            return (Math.pow(x, alpha - 1) * Math.exp(-x / lambda)) /
-                   (Math.pow(lambda, alpha) * gamma);
-        }
-
-        // Gamma density function using Stirling's approximation
-        function gammaDensityStirling(x, alpha, lambda) {
-            if (x < 0) return 0; // Gamma density is zero for x < 0
-            const gamma = stirlingApproximation(alpha - 1);
+            const gamma = gammaApproximation(alpha);
             return (Math.pow(x, alpha - 1) * Math.exp(-x / lambda)) /
                    (Math.pow(lambda, alpha) * gamma);
         }
@@ -55,19 +46,14 @@
             return total;
         }
 
-        // Exact factorial calculation
-        function factorial(n) {
-            if (n <= 1) return 1;
-            return n * factorial(n - 1);
+        // Approximation for Gamma function using Stirling's formula
+        function gammaApproximation(alpha) {
+            if (alpha <= 0) return NaN; // Gamma is undefined for alpha <= 0
+            const sqrtTwoPi = Math.sqrt(2 * Math.PI);
+            return sqrtTwoPi * Math.pow(alpha - 1, alpha - 0.5) * Math.exp(-(alpha - 1));
         }
 
-        // Stirling's approximation for factorial
-        function stirlingApproximation(n) {
-            if (n <= 1) return 1;
-            return Math.sqrt(2 * Math.PI * n) * Math.pow(n / Math.E, n);
-        }
-
-        // Main function to calculate and compare integrals
+        // Main function to calculate the integral
         function calculateIntegral() {
             const alpha = parseFloat(document.getElementById('alpha').value);
             const lambda = parseFloat(document.getElementById('lambda').value);
@@ -75,24 +61,20 @@
             const upperLimit = parseFloat(document.getElementById('upperLimit').value);
 
             if (alpha <= 0 || lambda <= 0) {
-                document.getElementById('exactResult').innerText = "Alpha and Lambda must be greater than zero.";
-                document.getElementById('stirlingResult').innerText = "Alpha and Lambda must be greater than zero.";
+                document.getElementById('integralResult').innerText = "Alpha and Lambda must be greater than zero.";
                 return;
             }
 
             if (lowerLimit >= upperLimit) {
-                document.getElementById('exactResult').innerText = "Lower limit must be less than upper limit.";
-                document.getElementById('stirlingResult').innerText = "Lower limit must be less than upper limit.";
+                document.getElementById('integralResult').innerText = "Lower limit must be less than upper limit.";
                 return;
             }
 
-            // Perform numerical integration with both methods
+            // Perform numerical integration
             const stepSize = 0.001; // Smaller step size for higher accuracy
-            const integralExact = integrate(gammaDensityExact, lowerLimit, upperLimit, stepSize, alpha, lambda);
-            const integralStirling = integrate(gammaDensityStirling, lowerLimit, upperLimit, stepSize, alpha, lambda);
+            const integral = integrate(gammaDensity, lowerLimit, upperLimit, stepSize, alpha, lambda);
 
-            document.getElementById('exactResult').innerText = `Integral Result (Exact Factorial): ${integralExact}`;
-            document.getElementById('stirlingResult').innerText = `Integral Result (Stirling Approximation): ${integralStirling}`;
+            document.getElementById('integralResult').innerText = `Integral Result: ${integral}`;
         }
     </script>
 
