@@ -3,82 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mathematical Summation and Gamma Density</title>
+    <title>Gamma Distribution Integral</title>
 </head>
 <body>
 
-    <h2>Mathematical Summation with Loop</h2>
-
-    <!-- Input fields for the four numbers to be summed -->
-    <label for="num1">Number 1:</label>
-    <input type="number" id="num1"><br><br>
-
-    <label for="num2">Number 2:</label>
-    <input type="number" id="num2"><br><br>
-
-    <label for="num3">Number 3:</label>
-    <input type="number" id="num3"><br><br>
-
-    <label for="num4">Number 4:</label>
-    <input type="number" id="num4"><br><br>
-
-    <!-- Input field for loop count -->
-    <label for="loopCount">Loop Count:</label>
-    <input type="number" id="loopCount"><br><br>
-
-    <button onclick="calculateSum()">Calculate Sum</button><br><br>
-    <p id="sumResult">Sum Result: </p>
-
-    <h2>Gamma Density Function</h2>
+    <h2>Gamma Distribution Integral Calculator</h2>
 
     <!-- Input fields for alpha and lambda parameters -->
     <label for="alpha">Alpha (shape parameter):</label>
-    <input type="number" id="alpha"><br><br>
+    <input type="number" id="alpha" step="0.01"><br><br>
 
     <label for="lambda">Lambda (rate parameter):</label>
-    <input type="number" id="lambda"><br><br>
+    <input type="number" id="lambda" step="0.01"><br><br>
 
-    <!-- Button to calculate gamma density -->
-    <button onclick="calculateGammaDensity()">Calculate Gamma Density</button><br><br>
-    <p id="gammaDensityResult">Gamma Density Result: </p>
+    <!-- Input fields for the integration limits -->
+    <label for="lowerLimit">Lower Limit:</label>
+    <input type="number" id="lowerLimit" step="0.01"><br><br>
+
+    <label for="upperLimit">Upper Limit:</label>
+    <input type="number" id="upperLimit" step="0.01"><br><br>
+
+    <!-- Button to calculate the integral -->
+    <button onclick="calculateIntegral()">Calculate Integral</button><br><br>
+    <p id="integralResult">Integral Result: </p>
 
     <script>
-        // Function to calculate the sum with loop
-        function calculateSum() {
-            const num1 = parseFloat(document.getElementById('num1').value) || 0;
-            const num2 = parseFloat(document.getElementById('num2').value) || 0;
-            const num3 = parseFloat(document.getElementById('num3').value) || 0;
-            const num4 = parseFloat(document.getElementById('num4').value) || 0;
-            const loopCount = parseInt(document.getElementById('loopCount').value) || 1;
-            
-            let sum = 0;
-            for (let i = 0; i < loopCount; i++) {
-                sum += num1 + num2 + num3 + num4;
-            }
-            
-            document.getElementById('sumResult').innerText = `Sum Result: ${sum}`;
+        // Gamma density function
+        function gammaDensity(x, alpha, lambda) {
+            if (x < 0) return 0; // Gamma density is zero for x < 0
+            const gamma = factorial(alpha - 1);
+            return (Math.pow(x, alpha - 1) * Math.exp(-x / lambda)) /
+                   (Math.pow(lambda, alpha) * gamma);
         }
 
-        // Function to calculate the gamma density
-        function calculateGammaDensity() {
-            const alpha = parseFloat(document.getElementById('alpha').value);
-            const lambda = parseFloat(document.getElementById('lambda').value);
-            const x = 1;  // You can replace this with any value of x you want to evaluate
-
-            if (alpha <= 0 || lambda <= 0) {
-                document.getElementById('gammaDensityResult').innerText = "Alpha and Lambda must be greater than zero.";
-                return;
+        // Numerical integration using the trapezoidal rule
+        function integrate(f, lower, upper, step, alpha, lambda) {
+            let total = 0;
+            for (let x = lower; x <= upper; x += step) {
+                const nextX = Math.min(x + step, upper);
+                total += ((f(x, alpha, lambda) + f(nextX, alpha, lambda)) / 2) * (nextX - x);
             }
-
-            // Calculate gamma density
-            const gamma = (x ** (alpha - 1) * Math.exp(-x / lambda)) / (Math.pow(lambda, alpha) * factorial(alpha - 1));
-            document.getElementById('gammaDensityResult').innerText = `Gamma Density Result: ${gamma}`;
+            return total;
         }
 
         // Function to calculate factorial for gamma function
         function factorial(n) {
             if (n <= 1) return 1;
             return n * factorial(n - 1);
+        }
+
+        // Main function to calculate the integral
+        function calculateIntegral() {
+            const alpha = parseFloat(document.getElementById('alpha').value);
+            const lambda = parseFloat(document.getElementById('lambda').value);
+            const lowerLimit = parseFloat(document.getElementById('lowerLimit').value);
+            const upperLimit = parseFloat(document.getElementById('upperLimit').value);
+
+            if (alpha <= 0 || lambda <= 0) {
+                document.getElementById('integralResult').innerText = "Alpha and Lambda must be greater than zero.";
+                return;
+            }
+
+            if (lowerLimit >= upperLimit) {
+                document.getElementById('integralResult').innerText = "Lower limit must be less than upper limit.";
+                return;
+            }
+
+            // Perform numerical integration
+            const stepSize = 0.001; // Smaller step size for higher accuracy
+            const integral = integrate(gammaDensity, lowerLimit, upperLimit, stepSize, alpha, lambda);
+
+            document.getElementById('integralResult').innerText = `Integral Result: ${integral}`;
         }
     </script>
 
