@@ -28,12 +28,12 @@
     <p id="integralResult">Integral Result: </p>
 
     <script>
-        // Gamma density function
+        // Gamma density function using log-space calculations
         function gammaDensity(x, alpha, lambda) {
             if (x < 0) return 0; // Gamma density is zero for x < 0
-            const gamma = gammaApproximation(alpha);
-            return (Math.pow(x, alpha - 1) * Math.exp(-x / lambda)) /
-                   (Math.pow(lambda, alpha) * gamma);
+            const logGamma = logGammaApproximation(alpha);
+            const logDensity = (alpha - 1) * Math.log(x) - x / lambda - alpha * Math.log(lambda) - logGamma;
+            return Math.exp(logDensity);
         }
 
         // Numerical integration using the trapezoidal rule
@@ -46,11 +46,10 @@
             return total;
         }
 
-        // Approximation for Gamma function using Stirling's formula
-        function gammaApproximation(alpha) {
-            if (alpha <= 0) return NaN; // Gamma is undefined for alpha <= 0
+        // Logarithmic approximation of the Gamma function using Stirling's formula
+        function logGammaApproximation(alpha) {
             const sqrtTwoPi = Math.sqrt(2 * Math.PI);
-            return sqrtTwoPi * Math.pow(alpha - 1, alpha - 0.5) * Math.exp(-(alpha - 1));
+            return Math.log(sqrtTwoPi) + (alpha - 0.5) * Math.log(alpha - 1) - (alpha - 1);
         }
 
         // Main function to calculate the integral
@@ -74,7 +73,15 @@
             const stepSize = 0.001; // Smaller step size for higher accuracy
             const integral = integrate(gammaDensity, lowerLimit, upperLimit, stepSize, alpha, lambda);
 
-            document.getElementById('integralResult').innerText = `Integral Result: ${integral}`;
+            // Compare with Stirling's formula and direct result
+            const stirlingGamma = Math.exp(logGammaApproximation(alpha));
+            const integralWithStirling = integrate(gammaDensity, lowerLimit, upperLimit, stepSize, alpha, lambda);
+
+            document.getElementById('integralResult').innerText = `
+                Integral Result: ${integral.toPrecision(6)} \n
+                Gamma (Stirling): ${stirlingGamma.toPrecision(6)} \n
+                Integral using Stirling: ${integralWithStirling.toPrecision(6)}
+            `;
         }
     </script>
 
